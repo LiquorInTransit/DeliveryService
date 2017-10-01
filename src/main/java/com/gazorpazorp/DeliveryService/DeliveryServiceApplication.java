@@ -1,4 +1,4 @@
-package com.gazorpazorp.DeliverService;
+package com.gazorpazorp.DeliveryService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +19,7 @@ import feign.RequestInterceptor;
 @SpringBootApplication(scanBasePackages="com.gazorpazorp")
 @EnableJpaRepositories("com.gazorpazorp.repository")
 @EntityScan(basePackages="com.gazorpazorp")
-//@EnableEurekaClient
+@EnableEurekaClient
 @EnableFeignClients("com.gazorpazorp.client")
 @EnableResourceServer
 @EnableOAuth2Client
