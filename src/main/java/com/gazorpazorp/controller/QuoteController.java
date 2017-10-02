@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,4 +33,12 @@ public class QuoteController {
 				.map(o -> new ResponseEntity<QuoteDto>(QuoteMapper.INSTANCE.quoteToQuoteDto(o), HttpStatus.OK))
 				.orElseThrow(() -> new Exception("Could not create quote!"));
 	}	
+	
+	@PreAuthorize("#oauth2.hasScope('system')")
+	@GetMapping("/quote/{id}")
+	public ResponseEntity<Quote> getQuote (@PathVariable("id") Long id) throws Exception {
+		return Optional.ofNullable(quoteService.getQuoteById(id))
+				.map(q -> new ResponseEntity<Quote>(q, HttpStatus.OK))
+				.orElseThrow(() -> new Exception ("The quote of that ID does not exist"));
+	}
 }

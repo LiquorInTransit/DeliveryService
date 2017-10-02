@@ -1,5 +1,7 @@
 package com.gazorpazorp.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import com.gazorpazorp.repository.QuoteRepository;
 
 @Service
 public class QuoteService {
+	Logger logger = LoggerFactory.getLogger(QuoteService.class);
 	
 	private final double FEE = 5.00;
 	private double feeMultiplier = 1.00;
@@ -30,7 +33,7 @@ public class QuoteService {
 		
 		Store store = storeClient.getClosestStoreToCoords(customer.getLatitude(), customer.getLongitude());
 		
-		
+		logger.warn("STORE_ID: " + store.getId());
 		
 		quote.setCustomerId(customer.getId());
 		quote.setStoreId(store.getId());
@@ -47,5 +50,9 @@ public class QuoteService {
 		
 		
 		return quoteRepo.save(quote);
+	}
+	
+	public Quote getQuoteById(Long id) {
+		return quoteRepo.findById(id).get();
 	}
 }
