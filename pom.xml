@@ -88,6 +88,10 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                 	<executable>true</executable>
+                	<embeddedLaunchScriptProperties >
+                		<logFolder>/dev</logFolder>
+                		<logFilename></logFilename>
+                	</embeddedLaunchScriptProperties>
                 </configuration>
 			</plugin>
 			<plugin>
