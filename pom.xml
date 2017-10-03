@@ -90,7 +90,7 @@
                 	<executable>true</executable>
                 	<embeddedLaunchScriptProperties >
                 		<logFolder>/dev</logFolder>
-                		<logFilename></logFilename>
+                		<logFilename>null</logFilename>
                 	</embeddedLaunchScriptProperties>
                 </configuration>
 			</plugin>
