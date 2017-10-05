@@ -1,4 +1,4 @@
-create table QUOTE (
+/*create table QUOTE (
 	id INTEGER PRIMARY KEY,
 	customer_id INTEGER,
 	store_id INTEGER,
@@ -9,4 +9,4 @@ create table QUOTE (
 	delivery_long DECIMAL,
 	fee DECIMAL,
 	dropoff_ETA INTEGER
-);
+);*/

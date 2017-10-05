@@ -5,9 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gazorpazorp.client.AccountClient;
+import com.gazorpazorp.client.GatewayClient;
 import com.gazorpazorp.client.StoreClient;
 import com.gazorpazorp.model.Customer;
+import com.gazorpazorp.model.Dropoff;
+import com.gazorpazorp.model.Pickup;
 import com.gazorpazorp.model.Quote;
 import com.gazorpazorp.model.Store;
 import com.gazorpazorp.repository.QuoteRepository;
@@ -23,24 +25,29 @@ public class QuoteService {
 	QuoteRepository quoteRepo;
 	
 	@Autowired
-	AccountClient acctClient;
+	GatewayClient acctClient;
 	@Autowired
 	StoreClient storeClient;
 	
 	public Quote createQuote () throws Exception {
 		Quote quote = new Quote();
 		Customer customer = acctClient.getCustomer();
+		logger.error("These are the coordinates obtained from the customer: " + customer.getLocation().getLatitude()+", "+customer.getLocation().getLongitude());
+		Store store = storeClient.getClosestStoreToCoords(customer.getLocation().getLatitude(), customer.getLocation().getLongitude());
 		
-		Store store = storeClient.getClosestStoreToCoords(customer.getLatitude(), customer.getLongitude());
+		Dropoff dropoff = new Dropoff();
+		dropoff.setLocation(customer.getLocation());
+		dropoff.setCustomerId(customer.getId());
+		dropoff.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
 		
-		logger.warn("STORE_ID: " + store.getId());
 		
 		quote.setCustomerId(customer.getId());
-		quote.setStoreId(store.getId());
-		quote.setDeliveryLat(customer.getLatitude());
-		quote.setDeliveryLong(customer.getLongitude());
-		quote.setPickupLat(store.getLatitude());
-		quote.setPickupLong(store.getLongitude());
+		quote.setPickup(new Pickup(store));
+		quote.setDropoff(dropoff);
+//		quote.setDeliveryLat(customer.getLatitude());
+//		quote.setDeliveryLong(customer.getLongitude());
+//		quote.setPickupLat(store.getLatitude());
+//		quote.setPickupLong(store.getLongitude());
 		//TODO: contact order service to find all new orders in last hour. if its higher than 20, change feeMultiplier
 		quote.setFee(FEE*feeMultiplier);
 		
@@ -53,6 +60,6 @@ public class QuoteService {
 	}
 	
 	public Quote getQuoteById(Long id) {
-		return quoteRepo.findById(id).get();
+		return quoteRepo.findById(id).orElse(null);
 	}
 }

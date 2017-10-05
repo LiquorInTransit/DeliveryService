@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,16 +20,20 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Quote {
 
 	private Long id;
-	private Long customerId;	
-	private Long storeId;
+	private Long customerId;
 	
 	private Timestamp estimatedAt;
 	
-	private double pickupLat;
-	private double pickupLong;
+	@Embedded
+	private Pickup pickup;
+	@Embedded
+	private Dropoff dropoff;
 	
-	private double deliveryLat;
-	private double deliveryLong;
+//	private double pickupLat;
+//	private double pickupLong;
+//	
+//	private double deliveryLat;
+//	private double deliveryLong;
 	
 	private double fee;	
 	private double dropoffETA;
@@ -60,14 +65,6 @@ public class Quote {
 	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
-	
-
-	public Long getStoreId() {
-		return storeId;
-	}
-	public void setStoreId(Long storeId) {
-		this.storeId = storeId;
-	}
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 	public Timestamp getEstimatedAt() {
@@ -77,32 +74,47 @@ public class Quote {
 		this.estimatedAt = estimatedAt;
 	}
 
-	public double getPickupLat() {
-		return pickupLat;
+	
+//	public double getPickupLat() {
+//		return pickupLat;
+//	}
+//	public void setPickupLat(double pickupLat) {
+//		this.pickupLat = pickupLat;
+//	}
+//
+//	public double getPickupLong() {
+//		return pickupLong;
+//	}
+//	public void setPickupLong(double pickupLong) {
+//		this.pickupLong = pickupLong;
+//	}
+//
+//	public double getDeliveryLat() {
+//		return deliveryLat;
+//	}
+//	public void setDeliveryLat(double deliveryLat) {
+//		this.deliveryLat = deliveryLat;
+//	}
+//
+//	public double getDeliveryLong() {
+//		return deliveryLong;
+//	}
+//	public void setDeliveryLong(double deliveryLong) {
+//		this.deliveryLong = deliveryLong;
+//	}
+
+	public Pickup getPickup() {
+		return pickup;
 	}
-	public void setPickupLat(double pickupLat) {
-		this.pickupLat = pickupLat;
+	public void setPickup(Pickup pickup) {
+		this.pickup = pickup;
 	}
 
-	public double getPickupLong() {
-		return pickupLong;
+	public Dropoff getDropoff() {
+		return dropoff;
 	}
-	public void setPickupLong(double pickupLong) {
-		this.pickupLong = pickupLong;
-	}
-
-	public double getDeliveryLat() {
-		return deliveryLat;
-	}
-	public void setDeliveryLat(double deliveryLat) {
-		this.deliveryLat = deliveryLat;
-	}
-
-	public double getDeliveryLong() {
-		return deliveryLong;
-	}
-	public void setDeliveryLong(double deliveryLong) {
-		this.deliveryLong = deliveryLong;
+	public void setDropoff(Dropoff dropoff) {
+		this.dropoff = dropoff;
 	}
 
 	public double getFee() {
