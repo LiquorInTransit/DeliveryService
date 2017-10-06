@@ -46,18 +46,18 @@ public class InternalDeliveryController {
 				.orElseThrow(() -> new Exception("Failed to create Delivery"));
 	}
 	
-	@GetMapping
+	@GetMapping("/order/{orderId}")
 	@PreAuthorize("#oauth2.hasScope('system')")
-	public ResponseEntity getDeliveries(@RequestParam(value="orderId") Long orderId) throws Exception {
+	public ResponseEntity getDeliveries(@PathVariable(value="orderId") Long orderId) throws Exception {
 			return Optional.ofNullable(deliveryService.getDeliveryByOrderId(orderId, false))
 					.map(d -> new ResponseEntity<Delivery>(d, HttpStatus.OK))
 					.orElseThrow(() -> new Exception("Delivery with specified OrderId does not exist"));
 		
 	}
 	
-	@DeleteMapping
+	@DeleteMapping("/order/{orderId}")
 	@PreAuthorize("#oauth2.hasScope('system')")
-	public ResponseEntity deleteDelivery(@RequestParam(value="orderId") Long orderId) throws Exception {
+	public ResponseEntity deleteDelivery(@PathVariable("orderId") Long orderId) throws Exception {
 			return Optional.ofNullable(deliveryService.deleteDeliveryByOrderId(orderId))
 					.map(d -> new ResponseEntity(HttpStatus.OK))
 					.orElseThrow(() -> new Exception("Failed to delete delivery"));
