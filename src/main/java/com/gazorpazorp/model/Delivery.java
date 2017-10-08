@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ public class Delivery {
 	private Long driverId;
 	
 	private Long driverHold;
+	private List<Long> driverBlacklist;
 	
 	private Timestamp createdAt;
 	
@@ -95,6 +97,15 @@ public class Delivery {
 	}
 	public void setDriverHold(Long driverHold) {
 		this.driverHold = driverHold;
+	}
+
+	@ElementCollection
+	@JsonIgnore
+	public List<Long> getDriverBlacklist() {
+		return driverBlacklist;
+	}
+	public void setDriverBlacklist(List<Long> driverBlacklist) {
+		this.driverBlacklist = driverBlacklist;
 	}
 
 	public Pickup getPickup() {

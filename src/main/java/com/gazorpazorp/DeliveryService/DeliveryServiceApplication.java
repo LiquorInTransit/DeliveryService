@@ -1,5 +1,8 @@
 package com.gazorpazorp.DeliveryService;
 
+import javax.annotation.PostConstruct;
+
+import org.hsqldb.util.DatabaseManagerSwing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -53,9 +56,9 @@ public class DeliveryServiceApplication {
 		return instance;
 	}
 	
-//	@PostConstruct
-//	public void getDbManager(){
-//	   DatabaseManagerSwing.main(
-//		new String[] { "--url", "jdbc:hsqldb:mem:test://localhost/test?characterEncoding=UTF-8", "--user", "SA", "--password", ""});
-//	}
+	@PostConstruct
+	public void getDbManager(){
+	   DatabaseManagerSwing.main(
+		new String[] { "--url", "jdbc:hsqldb:mem:test://localhost/test?characterEncoding=UTF-8", "--user", "SA", "--password", ""});
+	}
 }

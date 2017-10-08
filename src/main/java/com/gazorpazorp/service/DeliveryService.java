@@ -1,5 +1,6 @@
 package com.gazorpazorp.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +107,8 @@ public class DeliveryService {
 		Driver driver = accountClient.getDriver();
 		if ( !deliveryRepo.findByDriverId(driver.getId()).stream().filter(d -> !"complete".equals(d.getStatus())).collect(Collectors.toList()).isEmpty())
 			return null;
-		Delivery delivery = deliveryRepo.findTopByDriverIdIsNullAndDriverHoldIsNullOrderByCreatedAtAsc();
+		List<Delivery> openDeliveries = deliveryRepo.findTopByDriverIdIsNullAndDriverHoldIsNullOrderByCreatedAtAsc(driver.getId());
+		Delivery delivery = openDeliveries.isEmpty()?null:openDeliveries.get(0);
 		if (delivery != null) {
 			delivery.setDriverHold(driver.getId());
 			deliveryRepo.saveAndFlush(delivery);
@@ -138,6 +140,7 @@ public class DeliveryService {
 			throw new Exception("You are not authorized to remove the hold from this order");
 		
 		delivery.setDriverHold(null);
+		delivery.getDriverBlacklist().add(driver.getId());
 		deliveryRepo.save(delivery);
 		return true;
 	}

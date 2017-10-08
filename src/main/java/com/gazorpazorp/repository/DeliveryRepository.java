@@ -16,7 +16,9 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long>{
 	
 	public List<Delivery> findByDriverId(@Param("driverId") Long id);
 	
-	public Delivery findTopByDriverIdIsNullAndDriverHoldIsNullOrderByCreatedAtAsc();
+//	@Query("From User u where :role member u.roles")
+	@Query("select d from Delivery d where d.driverId is null and d.driverHold is null and ?1 not member d.driverBlacklist order by d.createdAt asc")
+	public List<Delivery> findTopByDriverIdIsNullAndDriverHoldIsNullOrderByCreatedAtAsc(Long driverId);
 	
 	@Query("select d from Delivery d where d.driverId = ?1 and status != 'complete'")
 	public Delivery findCurrentDeliveryForDriver(Long driverId);
