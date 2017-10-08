@@ -2,17 +2,19 @@ package com.gazorpazorp.model;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Delivery {
@@ -22,6 +24,8 @@ public class Delivery {
 	private Long orderId;
 	private Long driverId;
 	
+	private Long driverHold;
+	
 	private Timestamp createdAt;
 	
 	@Embedded
@@ -30,6 +34,8 @@ public class Delivery {
 	@Embedded
 	//@Column(name="dropoff")
 	private Dropoff dropoff;
+	
+//	private List<LineItem> items;
 	
 	private Double fee;
 	private String status;
@@ -82,6 +88,14 @@ public class Delivery {
 	public void setDriverId(Long driverId) {
 		this.driverId = driverId;
 	}
+	
+	@JsonIgnore
+	public Long getDriverHold() {
+		return driverHold;
+	}
+	public void setDriverHold(Long driverHold) {
+		this.driverHold = driverHold;
+	}
 
 	public Pickup getPickup() {
 		return pickup;
@@ -96,6 +110,14 @@ public class Delivery {
 	public void setDropoff(Dropoff dropoff) {
 		this.dropoff = dropoff;
 	}
+	
+//	@Transient
+//	public List<LineItem> getItems() {
+//		return items;
+//	}
+//	public void setItems(List<LineItem> items) {
+//		this.items = items;
+//	}
 
 	public Double getFee() {
 		return fee;

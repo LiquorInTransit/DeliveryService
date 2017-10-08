@@ -1,6 +1,7 @@
 package com.gazorpazorp.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -10,9 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gazorpazorp.client.GatewayClient;
+import com.gazorpazorp.client.OrderClient;
 import com.gazorpazorp.model.Customer;
 import com.gazorpazorp.model.Delivery;
+import com.gazorpazorp.model.Driver;
 import com.gazorpazorp.model.Quote;
+import com.gazorpazorp.model.dto.DeliveryWithItemsDto;
+import com.gazorpazorp.model.dtoMapper.DeliveryMapper;
 import com.gazorpazorp.repository.DeliveryRepository;
 import com.gazorpazorp.repository.QuoteRepository;
 
@@ -27,6 +32,8 @@ public class DeliveryService {
 	
 	@Autowired
 	GatewayClient accountClient;
+	@Autowired
+	OrderClient orderClient;
 
 	// @Autowired
 	// DeliveryTrackerClient deliveryTrackerClient;
@@ -40,13 +47,13 @@ public class DeliveryService {
 		delivery.setQuoteId(quote.getId());
 		delivery.setOrderId(orderId);
 		delivery.setFee(quote.getFee());
+		delivery.setStatus("");
 		delivery = deliveryRepo.save(delivery);
 		// TODO: REMOVE THIS AWFUL TESTING SHIT
 		delivery.setTrackingURL("localhost:8080/api/tracking/1");
 		// delivery.setTrackingURL(deliveryTrackerClient.track(delivery.getId()))
 		// if (delivery.getTrackingURL() != null)
 		deliveryRepo.save(delivery);
-
 		return delivery.getTrackingURL();
 	}
 
@@ -59,7 +66,7 @@ public class DeliveryService {
 				validateCustomerId(delivery.getDropoff().getCustomerId());
 			} catch (Exception e) {
 				// TODO: Make this throw an exception so that feign can say that you're not
-				// authorized to look at these orders
+				// authorized to look at these deliveries
 				logger.error("FAILED VALIDATION");
 				return null;
 			}
@@ -78,9 +85,67 @@ public class DeliveryService {
 		return null;
 	}
 	
+	//Not sure if this method even works...
 	public List<Delivery> getDeliveriesForCustomer() {
 		return deliveryRepo.findByDropoffCustomerId(accountClient.getCustomer().getId());
 	}
+	
+	public List<Delivery> getDriverHistory() {
+		return deliveryRepo.findByDriverId(accountClient.getDriver().getId());
+	}
+	
+	public DeliveryWithItemsDto getDriverCurrentDelivery() {
+		Driver driver = accountClient.getDriver();
+		Delivery delivery = deliveryRepo.findCurrentDeliveryForDriver(driver.getId());
+		if (delivery == null)
+			return null;
+		return DeliveryMapper.INSTANCE.deliveryAndItemsToDeliveryWithItemsDto(delivery, orderClient.getItemsInOrder(delivery.getOrderId()));
+	}
+	
+	public Delivery findOpen() {
+		Driver driver = accountClient.getDriver();
+		if ( !deliveryRepo.findByDriverId(driver.getId()).stream().filter(d -> !"complete".equals(d.getStatus())).collect(Collectors.toList()).isEmpty())
+			return null;
+		Delivery delivery = deliveryRepo.findTopByDriverIdIsNullAndDriverHoldIsNullOrderByCreatedAtAsc();
+		if (delivery != null) {
+			delivery.setDriverHold(driver.getId());
+			deliveryRepo.saveAndFlush(delivery);
+		}
+		return delivery;
+	}
+	
+	public DeliveryWithItemsDto assignDelivery (Long deliveryId) {
+		Driver driver = accountClient.getDriver();
+		Delivery delivery = deliveryRepo.findById(deliveryId).orElse(null);
+		if (delivery == null)
+			return null;
+		if (delivery.getDriverHold() != driver.getId() || delivery.getDriverId() != null)
+			return null;
+		
+		delivery.setDriverId(driver.getId());
+		delivery = deliveryRepo.save(delivery);
+		return DeliveryMapper.INSTANCE.deliveryAndItemsToDeliveryWithItemsDto(delivery, orderClient.getItemsInOrder(delivery.getOrderId()));
+	}
+	
+	public Boolean removeHold (Long deliveryId) throws Exception {
+		Delivery delivery = deliveryRepo.findById(deliveryId).orElse(null);
+		if (delivery == null)
+			throw new Exception("Delivery does not exist");
+		if (delivery.getDriverId()!=null)
+			throw new Exception("A driver is already assigned to this delivery");			
+		Driver driver = accountClient.getDriver();
+		if (delivery.getDriverHold() != driver.getId())
+			throw new Exception("You are not authorized to remove the hold from this order");
+		
+		delivery.setDriverHold(null);
+		deliveryRepo.save(delivery);
+		return true;
+	}
+	
+	
+	
+	
+	
 	
 	private boolean validateCustomerId(Long customerId) throws Exception {
 		Customer customer = accountClient.getCustomer();
