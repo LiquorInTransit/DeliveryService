@@ -123,6 +123,16 @@ public class DeliveryService {
 		return DeliveryMapper.INSTANCE.deliveryAndItemsToDeliveryWithItemsDto(delivery, orderClient.getItemsInOrder(delivery.getOrderId()));
 	}
 	
+	public Boolean removeDriverFromCurrentDelivery () {
+		Driver driver = accountClient.getDriver();
+		Delivery delivery = deliveryRepo.findCurrentDeliveryForDriver(driver.getId());
+		if (delivery == null)
+			return null;
+		delivery.setDriverId(null);
+		deliveryRepo.save(delivery);
+		return true;
+	}
+	
 	public Delivery findOpen() {
 		Driver driver = accountClient.getDriver();
 		if ( !deliveryRepo.findByDriverId(driver.getId()).stream().filter(d -> !"complete".equals(d.getStatus())).collect(Collectors.toList()).isEmpty())

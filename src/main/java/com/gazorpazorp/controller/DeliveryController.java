@@ -61,6 +61,13 @@ public class DeliveryController {
 				.map(d -> new ResponseEntity<DeliveryWithItemsDto>(d, HttpStatus.OK))
 				.orElseThrow(() -> new Exception("No past deliveries for driver."));
 	}
+	@DeleteMapping("/current")
+	@PreAuthorize("#oauth2.hasScope('driver') and hasRole('DRIVER')")
+	public ResponseEntity removeDriverFromDelivery () throws Exception{
+		return Optional.ofNullable(deliveryService.removeDriverFromCurrentDelivery())
+				.map(d -> new ResponseEntity(HttpStatus.OK))
+				.orElseThrow(() -> new Exception("Driver doesn't have current delivery"));
+	}
 	
 	@GetMapping
 	@PreAuthorize("#oauth2.hasScope('driver')")
@@ -85,5 +92,6 @@ public class DeliveryController {
 				.map(d -> new ResponseEntity(HttpStatus.OK))
 				.orElseThrow(() -> new Exception("Failed to remove hold"));
 	}
+
 
 }
