@@ -53,7 +53,7 @@ public class DeliveryService {
 		delivery.setStatus("");
 		delivery = deliveryRepo.save(delivery);
 		// TODO: REMOVE THIS AWFUL TESTING SHIT
-		delivery.setTrackingURL("trackYourButt"/*deliveryTrackingClient.createNewEvent(delivery.getId())*/);
+		delivery.setTrackingURL("yourButt"/*deliveryTrackingClient.createNewEvent(delivery.getId())*/);
 		// delivery.setTrackingURL(deliveryTrackerClient.track(delivery.getId()))
 		// if (delivery.getTrackingURL() != null)
 		deliveryRepo.save(delivery);
@@ -160,7 +160,7 @@ public class DeliveryService {
 			throw new Exception("You are not authorized to remove the hold from this order");
 		
 		delivery.setDriverHold(null);
-		delivery.getDriverBlacklist().add(driver.getId());
+	//	delivery.getDriverBlacklist().add(driver.getId());
 		deliveryRepo.save(delivery);
 		return true;
 	}
