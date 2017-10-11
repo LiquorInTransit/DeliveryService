@@ -53,7 +53,7 @@ public class DeliveryService {
 		delivery.setStatus("");
 		delivery = deliveryRepo.save(delivery);
 		// TODO: REMOVE THIS AWFUL TESTING SHIT
-		delivery.setTrackingURL("yourButt"/*deliveryTrackingClient.createNewEvent(delivery.getId())*/);
+		delivery.setTrackingURL(deliveryTrackingClient.createNewEvent(delivery.getId()));
 		// delivery.setTrackingURL(deliveryTrackerClient.track(delivery.getId()))
 		// if (delivery.getTrackingURL() != null)
 		deliveryRepo.save(delivery);

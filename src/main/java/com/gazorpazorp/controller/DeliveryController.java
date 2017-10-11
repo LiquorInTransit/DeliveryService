@@ -55,7 +55,7 @@ public class DeliveryController {
 	}
 	
 	@GetMapping("/current")
-	@PreAuthorize("#oauth2.hasScope('driver')")
+	@PreAuthorize("#oauth2.hasScope('driver') and hasRole('DRIVER')")
 	public ResponseEntity getDriverCurrentDelivery () throws Exception {
 		return Optional.ofNullable(deliveryService.getDriverCurrentDelivery())
 				.map(d -> new ResponseEntity<DeliveryWithItemsDto>(d, HttpStatus.OK))
