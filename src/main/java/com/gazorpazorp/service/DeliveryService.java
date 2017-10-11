@@ -1,6 +1,5 @@
 package com.gazorpazorp.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gazorpazorp.client.DeliveryTrackingClient;
 import com.gazorpazorp.client.GatewayClient;
 import com.gazorpazorp.client.OrderClient;
 import com.gazorpazorp.model.Customer;
@@ -35,6 +35,8 @@ public class DeliveryService {
 	GatewayClient accountClient;
 	@Autowired
 	OrderClient orderClient;
+	@Autowired
+	DeliveryTrackingClient deliveryTrackingClient;
 
 	// @Autowired
 	// DeliveryTrackerClient deliveryTrackerClient;
@@ -51,7 +53,7 @@ public class DeliveryService {
 		delivery.setStatus("");
 		delivery = deliveryRepo.save(delivery);
 		// TODO: REMOVE THIS AWFUL TESTING SHIT
-		delivery.setTrackingURL("localhost:8080/api/tracking/1");
+		delivery.setTrackingURL("trackYourButt"/*deliveryTrackingClient.createNewEvent(delivery.getId())*/);
 		// delivery.setTrackingURL(deliveryTrackerClient.track(delivery.getId()))
 		// if (delivery.getTrackingURL() != null)
 		deliveryRepo.save(delivery);
@@ -65,6 +67,24 @@ public class DeliveryService {
 			//validate that the accountId of the order belongs to the user
 			try {
 				validateCustomerId(delivery.getDropoff().getCustomerId());
+			} catch (Exception e) {
+				// TODO: Make this throw an exception so that feign can say that you're not
+				// authorized to look at these deliveries
+				logger.error("FAILED VALIDATION");
+				return null;
+			}
+		}
+
+		return delivery;
+	}
+	
+	public Delivery getDeliveryById(Long deliveryId, boolean verifyDriver) throws Exception {
+		Delivery delivery = deliveryRepo.findById(deliveryId).orElseThrow(() -> new Exception("Delivery of that ID does not exist"));
+		
+		if (verifyDriver) {
+			//validate that the accountId of the order belongs to the user
+			try {
+				validateDriverId(delivery.getDriverId());
 			} catch (Exception e) {
 				// TODO: Make this throw an exception so that feign can say that you're not
 				// authorized to look at these deliveries
@@ -155,6 +175,14 @@ public class DeliveryService {
 		
 		if (customer != null && customer.getId() != customerId) {
 			throw new Exception ("Account number not valid");
+		}
+		return true;
+	}
+	private boolean validateDriverId(Long driverId) throws Exception {
+		Driver driver = accountClient.getDriver();
+		
+		if (driver == null || driver.getId() != driverId) {
+			throw new Exception ("Driver not valid");
 		}
 		return true;
 	}

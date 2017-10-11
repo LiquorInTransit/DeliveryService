@@ -22,45 +22,53 @@ import com.gazorpazorp.service.QuoteService;
 @RestController
 @RequestMapping("/internal/deliveries")
 public class InternalDeliveryController {
-	
+
 	@Autowired
 	QuoteService quoteService;
 	@Autowired
 	DeliveryService deliveryService;
 
-	//TODO: Make this endpoint @ /internal/deliveries/quote/{id}
+	// TODO: Make this endpoint @ /internal/deliveries/quote/{id}
 	@GetMapping("/quote/{id}")
 	@PreAuthorize("#oauth2.hasScope('system')")
-	public ResponseEntity<Quote> getQuote (@PathVariable("id") Long id) throws Exception {
-		return Optional.ofNullable(quoteService.getQuoteById(id))
-				.map(q -> new ResponseEntity<Quote>(q, HttpStatus.OK))
-				.orElseThrow(() -> new Exception ("The quote of that ID does not exist"));
+	public ResponseEntity<Quote> getQuote(@PathVariable("id") Long id) throws Exception {
+		return Optional.ofNullable(quoteService.getQuoteById(id)).map(q -> new ResponseEntity<Quote>(q, HttpStatus.OK))
+				.orElseThrow(() -> new Exception("The quote of that ID does not exist"));
 	}
-	
-	
+
 	@PostMapping
 	@PreAuthorize("#oauth2.hasScope('system')")
-	public ResponseEntity createDelivery(@RequestParam("quoteId")Long quoteId, @RequestParam("orderId")Long orderId) throws Exception {
+	public ResponseEntity createDelivery(@RequestParam("quoteId") Long quoteId, @RequestParam("orderId") Long orderId)
+			throws Exception {
 		return Optional.ofNullable(deliveryService.createDelivery(quoteId, orderId))
 				.map(d -> new ResponseEntity(d, HttpStatus.OK))
 				.orElseThrow(() -> new Exception("Failed to create Delivery"));
 	}
-	
+
 	@GetMapping("/order/{orderId}")
 	@PreAuthorize("#oauth2.hasScope('system')")
-	public ResponseEntity getDeliveries(@PathVariable(value="orderId") Long orderId) throws Exception {
-			return Optional.ofNullable(deliveryService.getDeliveryByOrderId(orderId, false))
-					.map(d -> new ResponseEntity<Delivery>(d, HttpStatus.OK))
-					.orElseThrow(() -> new Exception("Delivery with specified OrderId does not exist"));
-		
+	public ResponseEntity getDeliveryByOrderId(@PathVariable(value = "orderId") Long orderId) throws Exception {
+		return Optional.ofNullable(deliveryService.getDeliveryByOrderId(orderId, false))
+				.map(d -> new ResponseEntity<Delivery>(d, HttpStatus.OK))
+				.orElseThrow(() -> new Exception("Delivery with specified OrderId does not exist"));
+
 	}
-	
+
+	@GetMapping("/{deliveryId}")
+	@PreAuthorize("#oauth2.hasScope('system')")
+	public ResponseEntity getDeliveryById(@PathVariable(value = "deliveryId") Long deliveryId) throws Exception {
+		return Optional.ofNullable(deliveryService.getDeliveryById(deliveryId, false))
+				.map(d -> new ResponseEntity<Delivery>(d, HttpStatus.OK))
+				.orElseThrow(() -> new Exception("Delivery with specified OrderId does not exist"));
+
+	}
+
 	@DeleteMapping("/order/{orderId}")
 	@PreAuthorize("#oauth2.hasScope('system')")
 	public ResponseEntity deleteDelivery(@PathVariable("orderId") Long orderId) throws Exception {
-			return Optional.ofNullable(deliveryService.deleteDeliveryByOrderId(orderId))
-					.map(d -> new ResponseEntity(HttpStatus.OK))
-					.orElseThrow(() -> new Exception("Failed to delete delivery"));
-		
+		return Optional.ofNullable(deliveryService.deleteDeliveryByOrderId(orderId))
+				.map(d -> new ResponseEntity(HttpStatus.OK))
+				.orElseThrow(() -> new Exception("Failed to delete delivery"));
+
 	}
 }
